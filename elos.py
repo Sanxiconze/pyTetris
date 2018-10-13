@@ -1,3 +1,4 @@
+import copy
 import pygame
 import random
 #方块大小及数量颜色
@@ -126,7 +127,11 @@ class block:
             for rect in self.rects:
                 rect[0] = rect[0] + 1
 
+
+
+#判断旋转撞墙
     def rotateinwall(self):
+
         bl = False
         br = False
         for rect in self.rects:
@@ -140,8 +145,70 @@ class block:
         elif br == True:
             for rect in self.rects:
                 rect[0]-=1
-#旋转
+##此处判断是否撞击已为墙壁方块
+        flag = False
+        for rect in self.rects:
+            for wallrect in wall:
+                if rect == wallrect:
+                    flag = True
+        return flag
+
+
+#进墙后操作
+    def rotatemove(self,oldself,oldtag):
+        inwall = True
+        flag = 0
+        #以一号方块为中心移动至周围九宫格来判断是否有合适位置。
+        while inwall:
+            if (flag == 0):
+                for rect in self.rects:
+                    rect[0] = rect[0] - 1
+                    rect[1] = rect[1] - 1
+
+                pass
+            elif(flag <3):
+                for rect in self.rects:
+                    rect[0] = rect[0] +1
+
+            elif(flag ==3):
+                for rect in self.rects:
+                    rect[0] = rect[0] - 2
+                    rect[1]=rect[1]+1
+
+            elif(flag <6):
+                for rect in self.rects:
+                    rect[0] = rect[0] +1
+
+            elif(flag == 6):
+                for rect in self.rects:
+                    rect[0] = rect[0] - 2
+                    rect[1]=rect[1]+1
+
+            elif(flag <9):
+
+                for rect in self.rects:
+                    rect[0] = rect[0] +1
+                flag=flag+1
+            else:
+                #九宫格没有合适位置
+                self.rects =list(oldself)
+                self.tag = oldtag
+                print("无位置")
+                print(oldself)
+                print(self.rects)
+                break
+                pass
+            inwall= self.rotateinwall()
+            flag = flag + 1
+
+        pass
+##旋转
     def rotate(self):
+        oldself = copy.deepcopy(self.rects)
+#        print("当前方块")
+ #       print(oldself)
+
+        oldtag = self.tag
         if self.model == 2:
             if self.tag == 1:
                 self.rect_one[0]+=2
@@ -259,7 +326,10 @@ class block:
                 self.rect_two[1] -= 1
                 self.rect_one[0] -= 1
                 self.tag = 1
-        self.rotateinwall()
+        print("front")
+        print(oldself)
+        if self.rotateinwall():
+            self.rotatemove(oldself,oldtag)
 
 
 
@@ -276,7 +346,7 @@ def drawrect(id = []):
 
 
 block1 = block()
-
+#block1.get_model(5)
 block1.get_model(random.randint (1,7))
 def flu():
     # 画背景墙
